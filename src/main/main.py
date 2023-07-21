@@ -2,7 +2,20 @@ import discord
 from discord.ext import commands
 from controller.reaction_controller import handle_reaction
 from controller.message_controller import handle_message
+from controller.search_input_controller import handle_search
 import pathlib
+
+from discord import app_commands
+import typing
+
+
+class SearchInput(typing.NamedTuple):
+    input : str
+    
+class SearchTransformer(app_commands.Transformer):
+    async def transform(self, interaction: discord.Interaction, value: str) -> SearchInput:
+        return SearchInput(input=f"{value}")
+
 
 import config.bot_config as cfg
 
