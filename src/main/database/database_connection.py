@@ -29,4 +29,7 @@ async def get_watching_series_from_user(user_id: int) -> list(str):
     results = cur.fetchall()
     close(con, cur)
     return results
+
+def add_episodes_to_show(episodes: dict, show: str):
+    con = start_connection()
     

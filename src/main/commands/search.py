@@ -10,10 +10,10 @@ class Search(commands.Cog):
         self.bot = bot
         self._last_member = None
     
-    @ui.slash.command(name="Test", guild_ids=[1056612436033155153])
-    async def search(self, ctx: Context):
-        print("search")
-        await ctx.send(f"Search:", ephemeral=True)
+    
+    @commands.command()
+    async def search2(self, ctx: Context, *search: str):
+        await ctx.send(search)
 
 async def setup(bot):
     await bot.add_cog(Search(bot))

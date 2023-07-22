@@ -1,28 +1,15 @@
 import discord
+from discord import ui
 from discord.ext import commands
 from controller.reaction_controller import handle_reaction
 from controller.message_controller import handle_message
 from controller.search_input_controller import handle_search
-import pathlib
-
 from discord import app_commands
-import typing
-
-
-class SearchInput(typing.NamedTuple):
-    input : str
-    
-class SearchTransformer(app_commands.Transformer):
-    async def transform(self, interaction: discord.Interaction, value: str) -> SearchInput:
-        return SearchInput(input=f"{value}")
-
-
 import config.bot_config as cfg
 
 intents = discord.Intents.all()
 
 bot = commands.Bot(command_prefix=cfg.PREFIX, help_command=None, intents=intents)
-
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -35,7 +22,6 @@ async def on_message(message):
 
 @bot.event
 async def on_ready():
-    print("I'm ready!")
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(cfg.STATUS))
     
     for file in cfg.CMDS_DIR.glob("*.py"):
@@ -48,4 +34,16 @@ async def on_ready():
             exc = "{}: {}".format(type(e).__name__, e)
             print("Failed to load cog {}\n{}".format(cmd_file, exc))
             
+    try:
+        synched = await bot.tree.sync()
+        print(f"Synched {len(synched)} commands")
+    except Exception as e:
+        print(e)
+    print("I'm ready!")
+            
+@bot.tree.command(name="search")
+@app_commands.describe(show="Show to search for.")   
+async def search(interaction: discord.Interaction, show: str):
+    await handle_search(bot, interaction, show)
+    
 bot.run(cfg.TOKEN)
