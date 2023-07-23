@@ -50,12 +50,17 @@ def find_show(search: str, provider: Provider = Provider.ANIWATCH) -> list(tuple
 def find_season(search_url: str) -> list(tuple()):
     driver = get_driver(search_url)
     seasons = driver.find_elements(By.CLASS_NAME, "os-item")
-    result = list()
-    for season in seasons:
-        title = season.find_element(By.CLASS_NAME, "title")
-        if title != None:
-            result.append((title.text, season.get_attribute("href")))
-    return result
+    season_links = list()
+    if seasons != None:    
+        for season in seasons:
+            title = season.find_element(By.CLASS_NAME, "title")
+            if title != None:
+                season_links.append((title.text, season.get_attribute("href")))
+    else:
+        watch_btn = driver.find_element(By.CLASS_NAME, "btn-play")
+        season_links.append(("Season 1", watch_btn.get_attribute("href")))
+    watch_links = format_links(season_links)
+    return season_links
     
 
 def find_episodes(series_url: str) -> dict():
@@ -70,12 +75,14 @@ def find_episodes(series_url: str) -> dict():
         }
     return episode_dict
 
+def format_links(links: List[tuple]) -> List[tuple]:
+    for index, (name, link) in enumerate(links):
+        new_link = link.replace(".to", ".to/watch")
+        links[index] = (name, new_link)
+    return links
 
 if __name__ == "__main__":
-    while True:  
-        str = input()
-        results = find_episodes(str)
-        with open("out.json", "+a") as f:
-            json.dump(results, f)
-        print("fin")
+    links = [("Season 1", 'https://aniwatch.to/kaguya-sama-love-is-war-123'), ("Season 2", 'https://aniwatch.to/kaguya-sama-love-is-war-season-2-23'), ("Season 3", 'https://aniwatch.to/kaguya-sama-love-is-war-ultra-romantic-17224')]
+    print(format_links(links))
+
     
