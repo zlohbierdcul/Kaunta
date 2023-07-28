@@ -24,7 +24,7 @@ class Provider(Enum):
 def get_driver(url: str, wait_element: str = "film_list"):
     driver.get(url)
 
-    delay = 2 # seconds
+    delay = 4 # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CLASS_NAME, wait_element)))
         print("Page is ready!")
@@ -51,6 +51,7 @@ def find_season(search_url: str) -> list(tuple()):
     driver = get_driver(search_url)
     seasons = driver.find_elements(By.CLASS_NAME, "os-item")
     season_links = list()
+    print(seasons)
     if seasons != None:    
         for season in seasons:
             title = season.find_element(By.CLASS_NAME, "title")
@@ -59,21 +60,31 @@ def find_season(search_url: str) -> list(tuple()):
     else:
         watch_btn = driver.find_element(By.CLASS_NAME, "btn-play")
         season_links.append(("Season 1", watch_btn.get_attribute("href")))
-    watch_links = format_links(season_links)
-    return season_links
+    print(season_links)
+    return format_links(season_links)
     
 
-def find_episodes(series_url: str) -> dict():
+def find_episodes(series_url: str) -> dict:
     driver = get_driver(series_url, "ssl-item")
     episodes = driver.find_elements(By.CLASS_NAME, "ep-item")
+    show_name = find_show_name(driver)
     episode_dict = dict()
+    episode_dict[show_name] = {}
     for index, episode in enumerate(episodes):
-        episode_dict[index + 1] = {
+        episode_dict[show_name][index + 1] = {
             "Titel": episode.get_attribute("title"),
             "Filler": True if "filler" in episode.get_attribute("class") else False,
             "URL": episode.get_attribute("href")
         }
     return episode_dict
+
+
+def find_show_name(driver) -> str:
+    show_details = driver.find_element(By.CLASS_NAME, "anisc-detail")
+    show_name_wrapper = show_details.find_element(By.CLASS_NAME, "dynamic-name")
+    return show_name_wrapper.get_attribute("title")
+    
+
 
 def format_links(links: List[tuple]) -> List[tuple]:
     for index, (name, link) in enumerate(links):
