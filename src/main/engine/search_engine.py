@@ -22,8 +22,9 @@ class Provider(Enum):
         
         
 def get_driver(url: str, wait_element: str = "film_list"):
+    
+    print(f"url: {url}")
     driver.get(url)
-
     delay = 4 # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CLASS_NAME, wait_element)))
@@ -51,8 +52,7 @@ def find_season(search_url: str) -> list(tuple()):
     driver = get_driver(search_url)
     seasons = driver.find_elements(By.CLASS_NAME, "os-item")
     season_links = list()
-    print(seasons)
-    if seasons != None:    
+    if len(seasons) > 0:    
         for season in seasons:
             title = season.find_element(By.CLASS_NAME, "title")
             if title != None:
@@ -60,7 +60,6 @@ def find_season(search_url: str) -> list(tuple()):
     else:
         watch_btn = driver.find_element(By.CLASS_NAME, "btn-play")
         season_links.append(("Season 1", watch_btn.get_attribute("href")))
-    print(season_links)
     return format_links(season_links)
     
 
@@ -88,7 +87,11 @@ def find_show_name(driver) -> str:
 
 def format_links(links: List[tuple]) -> List[tuple]:
     for index, (name, link) in enumerate(links):
-        new_link = link.replace(".to", ".to/watch")
+        print(f"link: {link}")
+        if ("/watch/" not in link):
+            new_link = link.replace(".to", ".to/watch")
+        else:
+            new_link = link
         links[index] = (name, new_link)
     return links
 

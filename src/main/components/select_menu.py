@@ -4,6 +4,7 @@ from discord.ui import View, Button
 from engine.search_engine import find_season, find_episodes
 from database.database_connection import show_exists_for_user, add_episodes_to_show
 from pprint import pprint as pp
+from components.abort_button_component import AbortButton
 
 class ShowSelectMenu(discord.ui.Select):
     options = []
@@ -26,11 +27,14 @@ class ShowSelectMenu(discord.ui.Select):
             embeded = discord.Embed(title="Results", description="Showing only the 25 first results!\nPlease select one or more!", color=discord.Color.from_rgb(0,255,0))
             select_options =  [discord.SelectOption(label=x[0][:100], value=x[1][:100]) for index,x in enumerate(seasons)][:25]
             select_menu = SeasonSelectMenu("Your results..", len(select_options), select_options, False)
+            abort_button = AbortButton()
             view = View()
             view.add_item(select_menu)
+            view.add_item(abort_button)
             await interaction.response.send_message(embed=embeded, view=view)
         else:
-            await handle_season_select(interaction, seasons)
+            print(f"else: seasons: {seasons}")
+            await handle_season_select(interaction, [seasons[0][1]])
         
         
 class SeasonSelectMenu(discord.ui.Select):
@@ -51,8 +55,7 @@ async def handle_season_select(select_interaction: discord.Interaction, season_l
     # Define Callback functions for buttons
     async def yes_add_button_callback(interaction: discord.Interaction):
         watch_links = season_links
-        print(watch_links)
-        await interaction.message.delete()
+        await interaction.message.edit(embed=Embed(color=discord.Color.dark_grey(), title="Please stand-by!", description="Your show/s are currently being processed, this can take a second!"), view=None)
         await handle_show_add(interaction, watch_links)
 
     async def no_add_button_callback(interaction: discord.Interaction):
@@ -83,9 +86,10 @@ async def handle_show_add(interaction: discord.Interaction, watch_links):
             prequel = show_name
             added_shows += show_name + ", "
         else:
-            interaction.response.send_message(embed=Embed(title="Show exists already!", description=f"{show_name} already exists for this user. \n Skipping this season/show!", color=discord.Color.from_rgb(222,0,0)), delete_after=6)
+            await interaction.response.send_message(embed=Embed(title="Show exists already!", description=f"{show_name} already exists for this user. \n Skipping this season/show!", color=discord.Color.from_rgb(222,0,0)), delete_after=6)
     added_shows = added_shows[:-1]
     if len(added_shows) > 0:
-        interaction.response.send_message(embed=Embed(title="Show added!", description=f"{added_shows} added!"))
+        await interaction.channel.send(embed=Embed(title="Show added!", description=f"{added_shows} added!"), delete_after=5)
+        await interaction.message.delete()
     
     
