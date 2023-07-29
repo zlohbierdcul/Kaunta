@@ -36,11 +36,10 @@ def get_driver(url: str, wait_element: str = "film_list"):
 
 # Searches the Providers series for the given search term
 def find_show(search: str, provider: Provider = Provider.ANIWATCH) -> list(tuple()):
-    match (provider):
-        case Provider.ANIWATCH:
-            driver = get_driver(Provider.ANIWATCH.value + search)
-        case Provider.NINEANIME:
-            driver = get_driver(Provider.NINEANIME.value + search)
+    if (provider == Provider.ANIWATCH):
+        driver = get_driver(Provider.ANIWATCH.value + search)
+    if (provider == Provider.NINEANIME):
+        driver = get_driver(Provider.NINEANIME.value + search)
     shows = driver.find_elements(By.CLASS_NAME, "film-poster-ahref")
     result = list()
     for show in shows:
