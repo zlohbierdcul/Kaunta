@@ -15,7 +15,7 @@ def close(con, cur):
 
 
 async def get_all_data_from(table: str) -> list(tuple()):
-    query = f"SELECT * FROM public.\"{table}\""
+    query = f"SELECT * FROM {table}"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query)
@@ -25,7 +25,7 @@ async def get_all_data_from(table: str) -> list(tuple()):
 
 
 def get_show_by_show_id(show_id: int):
-    query = f"SELECT discord_id, name, current_episode, total_episodes, prequel FROM public.\"Series\" NATURAL JOIN public.\"Users\" WHERE series_id = %s"
+    query = f"SELECT discord_id, name, current_episode, total_episodes, prequel FROM Series NATURAL JOIN Users WHERE series_id = %s"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, (show_id, ))
@@ -35,7 +35,7 @@ def get_show_by_show_id(show_id: int):
 
 
 def get_linked_show(show_id: int):
-    query = f"SELECT series_id, name FROM public.\"Series\" WHERE prequel = %s"
+    query = f"SELECT series_id, name FROM Series WHERE prequel = %s"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, (show_id, ))
@@ -45,7 +45,7 @@ def get_linked_show(show_id: int):
 
 
 def get_episode_data(show_id, episode_num):
-    query = f"SELECT episode_name, filler, url FROM public.\"Episodes\" WHERE series_id = %s AND episode_number = %s"
+    query = f"SELECT episode_name, filler, url FROM Episodes WHERE series_id = %s AND episode_number = %s"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, (show_id, episode_num))
@@ -55,7 +55,7 @@ def get_episode_data(show_id, episode_num):
 
 
 def get_shows_from_user(user_id: int):
-    query = f"SELECT name, series_id, current_episode, total_episodes FROM public.\"Users\" NATURAL JOIN public.\"Series\" WHERE discord_id = %s ORDER BY time_added DESC"
+    query = f"SELECT name, series_id, current_episode, total_episodes FROM Users NATURAL JOIN Series WHERE discord_id = %s ORDER BY time_added DESC"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, [user_id])
@@ -66,7 +66,7 @@ def get_shows_from_user(user_id: int):
 
 
 async def get_watching_series_from_user(user_id: int):
-    query = f"SELECT * FROM public.\"Series\" NATURAL JOIN public.\"Users\" WHERE user_id = %s AND watching = true;"
+    query = f"SELECT * FROM Series NATURAL JOIN Users WHERE user_id = %s AND watching = true;"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, (user_id))
@@ -88,7 +88,7 @@ def add_episodes_to_show(episodes: dict, show: str, discord_id: int, name: str, 
 def add_episode(episode_num, title, filler, url, series_id):
     con = start_connection()
     cur = con.cursor()
-    query = f"INSERT INTO public.\"Episodes\"(episode_name, episode_number, filler, url, series_id) VALUES(%s, %s, %s, %s, %s)"
+    query = f"INSERT INTO Episodes(episode_name, episode_number, filler, url, series_id) VALUES(%s, %s, %s, %s, %s)"
     cur.execute(query, (title, episode_num, filler, url, series_id))
     con.commit()
     close(con, cur)
@@ -98,7 +98,7 @@ def add_show_to_user(title, user_id, total_episodes, prequel):
     prequel_id = "Null" if prequel == None else get_show_id_by_name_and_user_id(prequel, user_id)
     con = start_connection()
     cur = con.cursor()
-    query = f"INSERT INTO public.\"Series\"(name, user_id, total_episodes, watching, prequel) VALUES(%s, %s, %s, False, {prequel_id}) RETURNING series_id"
+    query = f"INSERT INTO Series(name, user_id, total_episodes, watching, prequel) VALUES(%s, %s, %s, False, {prequel_id}) RETURNING series_id"
     cur.execute(query, (title, user_id, total_episodes))
     series_id = cur.fetchone()[0]
     con.commit()
@@ -108,13 +108,13 @@ def add_show_to_user(title, user_id, total_episodes, prequel):
     
 def get_user_id(con, discord_id: int, name: str):
     cur = con.cursor()
-    user_query = f"SELECT * FROM public.\"Users\" WHERE discord_id = {discord_id}"
+    user_query = f"SELECT * FROM Users WHERE discord_id = {discord_id}"
     cur.execute(user_query)
     result = cur.fetchone()
     cur.close()
     cur = con.cursor()
     if (result == None):
-        add_user_query = f"INSERT INTO public.\"Users\"(user_name, discord_id) VALUES(%s, %s) RETURNING user_id"
+        add_user_query = f"INSERT INTO Users(user_name, discord_id) VALUES(%s, %s) RETURNING user_id"
         cur.execute(add_user_query, (name, discord_id))
         user_id = cur.fetchone()[0]
         cur.close()
@@ -127,7 +127,7 @@ def get_user_id(con, discord_id: int, name: str):
 def get_show_id_by_name_and_user_id(show_name, user_id) -> int:
     con = start_connection()
     cur = con.cursor()
-    query = f"SELECT series_id FROM public.\"Series\" NATURAL JOIN public.\"Users\" WHERE name = %s AND user_id = %s"
+    query = f"SELECT series_id FROM Series NATURAL JOIN Users WHERE name = %s AND user_id = %s"
     cur.execute(query, (show_name, user_id))
     id = cur.fetchone()[0]
     close(con, cur)
@@ -137,7 +137,7 @@ def get_show_id_by_name_and_user_id(show_name, user_id) -> int:
 def show_exists_for_user(show: str, user: int) -> bool:
     con = start_connection()
     cur = con.cursor()
-    query = f"SELECT * FROM public.\"Series\" NATURAL JOIN public.\"Users\" WHERE user_id = %s AND name = %s"
+    query = f"SELECT * FROM Series NATURAL JOIN Users WHERE user_id = %s AND name = %s"
     cur.execute(query, (user, show))
     results = cur.fetchall()
     close(con, cur)
@@ -145,7 +145,7 @@ def show_exists_for_user(show: str, user: int) -> bool:
     
     
 def increment_current_ep(show_id: int):
-    query = f"UPDATE public.\"Series\" SET current_episode = current_episode + 1 WHERE series_id = %s"
+    query = f"UPDATE Series SET current_episode = current_episode + 1 WHERE series_id = %s"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, (show_id, ))
@@ -154,7 +154,7 @@ def increment_current_ep(show_id: int):
     
     
 def decrement_current_ep(show_id: int):
-    query = f"UPDATE public.\"Series\" SET current_episode = current_episode - 1 WHERE series_id = %s"
+    query = f"UPDATE Series SET current_episode = current_episode - 1 WHERE series_id = %s"
     con = start_connection()
     cur = con.cursor()
     cur.execute(query, (show_id, ))
