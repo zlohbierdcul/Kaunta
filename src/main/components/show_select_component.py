@@ -37,7 +37,7 @@ class ForwardButton(Button):
         
 
 class ShowSelect(Select):
-    def __init__(self, placeholder: str | None = None, options: List[SelectOption] = ...) -> None:
+    def __init__(self, placeholder: str  = None, options: List[SelectOption] = ...) -> None:
         super().__init__(placeholder=placeholder, options=options)
 
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
