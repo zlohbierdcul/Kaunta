@@ -6,8 +6,8 @@ from engine.search_engine import find_show, find_season, find_episodes
 from discord.ui import View
 
 async def handle_search(bot, interaction: discord.Interaction, input: str):
-    results = find_show(input)
     interaction.response.defer()
+    results = find_show(input)
     if (len(results) > 0):
         for index,x in enumerate(results):
             print(f"{index}:: value -- {x[1]} || len -- {len(x[1])}")
