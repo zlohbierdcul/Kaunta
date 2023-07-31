@@ -8,7 +8,7 @@ from database.database_connection import get_show_by_show_id, get_linked_show, g
 import discord
 
 class CounterButton(Button):
-    def __init__(self, *, user_id: int, show_id: int = None, style: ButtonStyle = ButtonStyle.secondary, label: str  = None, disabled: bool = False, custom_id: str  = None, url: str  = None, emoji: str | Emoji | PartialEmoji  = None, row: int  = None):
+    def __init__(self, *, user_id: int, show_id: int = None, style: ButtonStyle = ButtonStyle.secondary, label: str  = None, disabled: bool = False, custom_id: str  = None, url: str  = None, emoji: str = None, row: int  = None):
         super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
         self.user_id = user_id
         self.show_id = show_id
