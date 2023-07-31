@@ -14,7 +14,7 @@ async def handle_search(bot, interaction: discord.Interaction, input: str):
         select_menu = ShowSelectMenu("Your results..", 1, select_options, False)
         abort_button = AbortButton()
         embeded = discord.Embed(title="Results", description=f"Showing only the {len(select_options)} first results!\nPlease select one!", color=discord.Color.from_rgb(0,255,0))
-        view = View()
+        view = View(None)
         view.add_item(select_menu)
         view.add_item(abort_button)
         await interaction.response.send_message(embed=embeded, view=view)
