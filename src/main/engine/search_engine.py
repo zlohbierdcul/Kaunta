@@ -1,5 +1,6 @@
 from typing import List
-from selenium.webdriver import Firefox, FirefoxOptions
+from selenium.webdriver import Chrome, ChromeOptions
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -9,20 +10,23 @@ from enum import Enum
 import json
 
 # Options
-options = FirefoxOptions()
+options = ChromeOptions()
 options.add_argument("-headless")
+options.add_argument("--no-sandbox")
 
 # Driver
-driver = Firefox(options)      
+driver_path = "/usr/lib/chromium-browser/chromedriver"
+driver = Chrome(options=options, service=Service(executable_path=driver_path))
+
 print("Ready!")
 
 class Provider(Enum):
     ANIWATCH = "https://aniwatch.to/search?keyword="
     NINEANIME =   "https://9animetv.to/search?keyword="
-        
-        
+
+
 def get_driver(url: str, wait_element: str = "film_list"):
-    
+
     print(f"url: {url}")
     driver.get(url)
     delay = 4 # seconds

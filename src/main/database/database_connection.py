@@ -1,11 +1,10 @@
-import psycopg2 
+import psycopg2
 
 def start_connection():
     con = psycopg2.connect(host="localhost",
                            user="postgres",
                            password="root",
-                           dbname="epicountdev")
-    
+                           dbname="kauntadb")
     return con
 
 
