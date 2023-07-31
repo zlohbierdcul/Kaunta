@@ -7,6 +7,7 @@ from discord.ui import View
 
 async def handle_search(bot, interaction: discord.Interaction, input: str):
     results = find_show(input)
+    interaction.response.defer()
     if (len(results) > 0):
         for index,x in enumerate(results):
             print(f"{index}:: value -- {x[1]} || len -- {len(x[1])}")
