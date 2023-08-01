@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+from webdriver_manager.firefox import GeckoDriverManager
 from bs4 import BeautifulSoup
 from enum import Enum
 import json
@@ -15,7 +16,7 @@ options.add_argument("-headless")
 
 # Driver
 driver_path = "/usr/bin/geckodriver/"
-driver = Firefox(options=options, service=Service(executable_path=driver_path))
+driver = Firefox(options=options, service=Service(GeckoDriverManager.install()))
 
 
 
