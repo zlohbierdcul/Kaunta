@@ -72,7 +72,10 @@ async def handle_season_select(select_interaction: discord.Interaction, season_l
     view = View(timeout=None)
     view.add_item(yes_add_button)
     view.add_item(no_add_button)
-    
+    try:
+        await select_interaction.message.delete()
+    except Exception as e:
+        print(e)
     await select_interaction.response.send_message(embed=Embed(title="Add?", description="Do you want to add this to your list?"), view=view)
     
     
