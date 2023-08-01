@@ -34,6 +34,7 @@ def get_driver(url: str, wait_element: str = "film_list"):
         print("Page is ready!")
     except TimeoutException:
         print("Loading took too much time!")
+        print(driver.page_source)
 
     return driver
 
