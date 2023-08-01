@@ -60,7 +60,7 @@ def create_show_select_view(user: int, page: int) -> View:
     back_button = BackButton()
     forward_button = ForwardButton()
     abort_button = AbortButton()
-    view = View()
+    view = View(timeout=None)
     view.add_item(show_select)
     if len(options) == 0:
         return None

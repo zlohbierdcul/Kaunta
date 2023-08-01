@@ -93,7 +93,7 @@ class CounterDeleteButton(CounterButton):
         
         
 def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_dec_disab: bool, link_url: str, user_id: int, show_id: int, sequel_id: int, prequel_id: int):
-    view = View(None)
+    view = View(timeout=None)
     view.add_item(IncrementEpButton(user_id, show_id, ep_inc_disab))
     view.add_item(DecrementEpButton(user_id, show_id, ep_dec_disab))
     view.add_item(IncrementSeasonButton(user_id, show_id, se_inc_disab, sequel_id))
