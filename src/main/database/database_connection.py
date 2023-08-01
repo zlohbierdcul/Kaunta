@@ -137,7 +137,7 @@ def show_exists_for_user(show: str, user: int) -> bool:
     con = start_connection()
     cur = con.cursor()
     print(f"user_id: {user}, show: {show}")
-    query = f"SELECT * FROM Series WHERE user_id = %s AND name = %s"
+    query = f"SELECT * FROM Series NATURAL JOIN Users WHERE discord_id = %s AND name = %s"
     cur.execute(query, (user, show))
     results = cur.fetchall()
     close(con, cur)
