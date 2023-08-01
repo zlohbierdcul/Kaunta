@@ -136,7 +136,7 @@ def get_show_id_by_name_and_user_id(show_name, user_id) -> int:
 def show_exists_for_user(show: str, user: int) -> bool:
     con = start_connection()
     cur = con.cursor()
-    query = f"SELECT * FROM Series NATURAL JOIN Users WHERE user_id = %s AND name = %s"
+    query = f"SELECT * FROM Series WHERE user_id = %s AND name = %s"
     cur.execute(query, (user, show))
     results = cur.fetchall()
     close(con, cur)
