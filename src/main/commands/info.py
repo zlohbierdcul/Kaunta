@@ -33,7 +33,6 @@ class Info(commands.Cog):
 
     @commands.command()
     async def help(self, ctx):
-        print("help")
         info_board = discord.Embed(
             title="BotName",
             colour=discord.Colour.blue()

@@ -42,7 +42,6 @@ class ShowSelect(Select):
 
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         show_id = int(list(interaction.data.values())[0][0])
-        print(interaction)
         user_id = interaction.user.id
         await handle_show_select(interaction, user_id, show_id)
         await interaction.message.delete()
@@ -50,7 +49,6 @@ class ShowSelect(Select):
 
 def create_show_select_view(user: int, page: int) -> View:
     shows = get_shows_from_user(user)
-    print(f"shows: {shows} , {len(shows)}")
     global options
     global show_select
     global current_page
@@ -58,7 +56,6 @@ def create_show_select_view(user: int, page: int) -> View:
     options = [SelectOption(label=x[0], value=x[1], description=f"{x[2]} | {x[3]}") for x in shows]
     x = 25*(page-1)
     y = 25*page
-    print(f"x: {x}, y: {y}")
     show_select = ShowSelect("Your shows", options[x:y])
     back_button = BackButton()
     forward_button = ForwardButton()

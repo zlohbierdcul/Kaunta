@@ -90,16 +90,11 @@ def find_show_name(driver) -> str:
 
 def format_links(links: List[tuple]) -> List[tuple]:
     for index, (name, link) in enumerate(links):
-        print(f"link: {link}")
         if ("/watch/" not in link):
             new_link = link.replace(".to", ".to/watch")
         else:
             new_link = link
         links[index] = (name, new_link)
     return links
-
-if __name__ == "__main__":
-    links = [("Season 1", 'https://aniwatch.to/kaguya-sama-love-is-war-123'), ("Season 2", 'https://aniwatch.to/kaguya-sama-love-is-war-season-2-23'), ("Season 3", 'https://aniwatch.to/kaguya-sama-love-is-war-ultra-romantic-17224')]
-    print(format_links(links))
 
     

@@ -19,9 +19,8 @@ class ShowSelectMenu(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         selected_show = list(interaction.data.values())[0][0]
-        print(f"selected_show: {selected_show}")
         seasons = find_season(selected_show)
-        print(f"seasons: {seasons}")
+
         
         if (len(seasons) > 1):
             embeded = discord.Embed(title="Results", description="Showing only the 25 first results!\nPlease select one or more!", color=discord.Color.from_rgb(0,255,0))
@@ -34,7 +33,6 @@ class ShowSelectMenu(discord.ui.Select):
             await interaction.message.delete()
             await interaction.followup.send(embed=embeded, view=view)
         else:
-            print(f"else: seasons: {seasons}")
             await handle_season_select(interaction, [seasons[0][1]])
         
         

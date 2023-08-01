@@ -136,12 +136,10 @@ def get_show_id_by_name_and_user_id(show_name, user_id) -> int:
 def show_exists_for_user(show: str, user: int) -> bool:
     con = start_connection()
     cur = con.cursor()
-    print(f"user_id: {user}, show: {show}")
     query = f"SELECT * FROM Series NATURAL JOIN Users WHERE discord_id = %s AND name = %s"
     cur.execute(query, (user, show))
     results = cur.fetchall()
     close(con, cur)
-    print(f"show_exists results: {results}")
     return True if len(results) > 0 else False
     
     

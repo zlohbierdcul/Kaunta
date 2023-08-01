@@ -14,7 +14,6 @@ class CounterButton(Button):
         self.show_id = show_id
 
     async def callback(self, interaction: Interaction) -> Any:
-        print(f"Counterbutton callback {self.user_id} -- {interaction.user.id}")
         self.allowed = True
         if (self.user_id != interaction.user.id):
             self.allowed = False
@@ -55,7 +54,6 @@ class IncrementSeasonButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            print("Ep Increment")
             await interaction.response.defer()
         
         
@@ -66,7 +64,6 @@ class DecrementSeasonButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            print("Ep Increment")
             await interaction.response.defer()
 
 
@@ -75,7 +72,6 @@ class LinkButton(Button):
         super().__init__(style=discord.ButtonStyle.link, emoji="🎞", row=2, url=url, label=title)
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
-        print("Se Decrement")
         # TODO Implement callback for episode increment
         await interaction.response.defer()
         
@@ -87,7 +83,6 @@ class CounterDeleteButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            print("Counter Delete")
             await interaction.message.delete()
             await interaction.response.defer()
         # TODO Implement callback for episode increment
