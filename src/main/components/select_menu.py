@@ -17,7 +17,7 @@ class ShowSelectMenu(discord.ui.Select):
 
 
     async def callback(self, interaction: discord.Interaction):
-        
+        await interaction.response.defer()
         selected_show = list(interaction.data.values())[0][0]
         print(f"selected_show: {selected_show}")
         seasons = find_season(selected_show)
