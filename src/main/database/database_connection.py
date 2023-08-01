@@ -159,3 +159,15 @@ def decrement_current_ep(show_id: int):
     cur.execute(query, (show_id, ))
     con.commit()
     close(con, cur)
+
+def increment_current_se(show_id: int):
+    prequel_query = f"SELECT series_id, name FROM Series WHERE prequel = %s"
+    con = start_connection()
+    cur = con.cursor()
+    cur.execute(prequel_query, (show_id, ))
+    prequel_results = cur.fetchall()
+    
+    close(con, cur)
+    
+def decrement_current_se(show_id: int):
+    pass

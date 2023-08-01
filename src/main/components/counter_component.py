@@ -4,7 +4,7 @@ from discord.enums import ButtonStyle
 from discord.interactions import Interaction
 from discord.partial_emoji import PartialEmoji
 from discord.ui import Button, View
-from database.database_connection import get_show_by_show_id, get_linked_show, get_episode_data, increment_current_ep, decrement_current_ep
+from database.database_connection import get_show_by_show_id, get_linked_show, get_episode_data, increment_current_ep, decrement_current_ep, increment_current_se, decrement_current_se
 import discord
 
 class CounterButton(Button):
@@ -25,7 +25,7 @@ class IncrementEpButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            update_database_ep_increment(self.show_id)
+            increment_current_ep(self.show_id)
             view, title, episode_name, current_ep, total_ep, color = create_counter_view(self.show_id)
             embed = create_counter_embed(title, episode_name, current_ep, total_ep, color)
             await interaction.message.edit(embed=embed, view=view)
@@ -39,7 +39,7 @@ class DecrementEpButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            update_database_ep_decrement(self.show_id)
+            decrement_current_ep(self.show_id)
             view, title, episode_name, current_ep, total_ep, color = create_counter_view(self.show_id)
             embed = create_counter_embed(title, episode_name, current_ep, total_ep, color)
             await interaction.message.edit(embed=embed, view=view)
@@ -54,6 +54,7 @@ class IncrementSeasonButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
+            increment_current_se(self.show_id)
             await interaction.response.defer()
         
         
@@ -64,6 +65,7 @@ class DecrementSeasonButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
+            decrement_current_se(self.show_id)
             await interaction.response.defer()
 
 
@@ -72,7 +74,6 @@ class LinkButton(Button):
         super().__init__(style=discord.ButtonStyle.link, emoji="🎞", row=2, url=url, label=title)
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
-        # TODO Implement callback for episode increment
         await interaction.response.defer()
         
         
@@ -85,7 +86,6 @@ class CounterDeleteButton(CounterButton):
         if (self.allowed):
             await interaction.message.delete()
             await interaction.response.defer()
-        # TODO Implement callback for episode increment
         
         
 def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_dec_disab: bool, link_url: str, user_id: int, show_id: int):
@@ -102,6 +102,7 @@ def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_d
 def create_counter_view(show_id: int):
     show = get_show_by_show_id(show_id)
     sequel = get_linked_show(show_id)
+    print(sequel)
     user_id = show[0][0]
     title = show[0][1]
     current_ep = show[0][2]
@@ -126,11 +127,3 @@ def create_counter_view(show_id: int):
 def create_counter_embed(title, episode_name, current_ep, total_ep, color):
     embed = discord.Embed(title=title, description=f"**Title**\n||```\n{episode_name}\n```||\n**Episode**\n```\n{current_ep} | {total_ep}\n``` ", color=color)
     return embed
-
-
-def update_database_ep_increment(show_id: int):
-    increment_current_ep(show_id)
-
-
-def update_database_ep_decrement(show_id: int):
-    decrement_current_ep(show_id)
