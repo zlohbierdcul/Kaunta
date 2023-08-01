@@ -106,7 +106,7 @@ def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_d
 def create_counter_view(show_id: int):
     show = get_show_by_show_id(show_id)
     sequel = get_linked_show(show_id)
-    sequel_id = None if len(sequel) == 0 else sequel_id[0][0]
+    sequel_id = None if len(sequel) == 0 else sequel[0][0]
     user_id = show[0][0]
     title = show[0][1]
     current_ep = show[0][2]
