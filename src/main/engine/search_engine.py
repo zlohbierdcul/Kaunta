@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+from selenium import WebDriver
 from bs4 import BeautifulSoup
 from enum import Enum
 import json
@@ -17,7 +18,6 @@ options.add_argument("--no-sandbox")
 # Driver
 driver_path = "/usr/lib/chromium-browser/chromedriver"
 driver = Chrome(options=options, service=Service(executable_path=driver_path))
-
 print("Ready!")
 
 class Provider(Enum):
@@ -29,7 +29,7 @@ def get_driver(url: str, wait_element: str = "film_list"):
 
     print(f"url: {url}")
     driver.get(url)
-    delay = 4 # seconds
+    delay = 10 # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CLASS_NAME, wait_element)))
         print("Page is ready!")
