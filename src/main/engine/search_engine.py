@@ -1,6 +1,6 @@
 from typing import List
 from selenium.webdriver import Firefox, FirefoxOptions
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -14,7 +14,7 @@ options = FirefoxOptions()
 options.add_argument("-headless")
 
 # Driver
-driver_path = "/usr/lib/chromium-browser/chromedriver"
+driver_path = "/usr/bin/geckodriver/"
 driver = Firefox(options=options, service=Service(executable_path=driver_path))
 
 
