@@ -15,9 +15,7 @@ options = FirefoxOptions()
 options.add_argument("-headless")
 
 # Driver
-driver_path = "/usr/bin/geckodriver/"
-driver = Firefox(options=options, service=Service(GeckoDriverManager.install()))
-
+driver = Firefox(options=options, service=Service(GeckoDriverManager().install()))
 
 
 print("Ready!")

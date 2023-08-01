@@ -94,7 +94,8 @@ async def handle_show_add(interaction: discord.Interaction, watch_links):
             await interaction.followup.send(embed=Embed(title="Show exists already!", description=f"{show_name} already exists for this user. \n Skipping this season/show!", color=discord.Color.from_rgb(222,0,0)), delete_after=6)
     added_shows = added_shows[:-1]
     if len(added_shows) > 0:
-        await interaction.followup.send(embed=Embed(title="Show added!", description=f"{added_shows} added!"), delete_after=5)
+        msg = await interaction.followup.send(embed=Embed(title="Show added!", description=f"{added_shows} added!"))
+        await msg.delete(delay=5)
         await interaction.message.delete()
     
     
