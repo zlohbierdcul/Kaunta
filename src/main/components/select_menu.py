@@ -17,7 +17,7 @@ class ShowSelectMenu(discord.ui.Select):
 
 
     async def callback(self, interaction: discord.Interaction):
-        await interaction.message.delete()
+        
         selected_show = list(interaction.data.values())[0][0]
         print(f"selected_show: {selected_show}")
         seasons = find_season(selected_show)
@@ -28,9 +28,10 @@ class ShowSelectMenu(discord.ui.Select):
             select_options =  [discord.SelectOption(label=x[0][:100], value=x[1][:100]) for index,x in enumerate(seasons)][:25]
             select_menu = SeasonSelectMenu("Your results..", len(select_options), select_options, False)
             abort_button = AbortButton()
-            view = View()
+            view = View(timeout=None)
             view.add_item(select_menu)
             view.add_item(abort_button)
+            await interaction.message.delete()
             await interaction.response.send_message(embed=embeded, view=view)
         else:
             print(f"else: seasons: {seasons}")
@@ -68,7 +69,7 @@ async def handle_season_select(select_interaction: discord.Interaction, season_l
     no_add_button = Button(label="No", style=discord.ButtonStyle.red)
     no_add_button.callback = no_add_button_callback
     # Add buttons to view
-    view = View()
+    view = View(timeout=None)
     view.add_item(yes_add_button)
     view.add_item(no_add_button)
     
