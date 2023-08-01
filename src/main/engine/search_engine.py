@@ -1,5 +1,5 @@
 from typing import List
-from selenium.webdriver import Chrome, ChromeOptions
+from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,13 +10,15 @@ from enum import Enum
 import json
 
 # Options
-options = ChromeOptions()
+options = FirefoxOptions()
 options.add_argument("-headless")
-options.add_argument("--no-sandbox")
 
 # Driver
 driver_path = "/usr/lib/chromium-browser/chromedriver"
-driver = Chrome(options=options, service=Service(executable_path=driver_path))
+driver = Firefox(options=options, service=Service(executable_path=driver_path))
+
+
+
 print("Ready!")
 
 class Provider(Enum):
@@ -26,7 +28,7 @@ class Provider(Enum):
 
 def get_driver(url: str, wait_element: str = "film_list"):
 
-    print(f"url: {url}")
+    print(f"url: {url} - wait-elem: {wait_element}")
     driver.get(url)
     delay = 10 # seconds
     try:
@@ -34,7 +36,6 @@ def get_driver(url: str, wait_element: str = "film_list"):
         print("Page is ready!")
     except TimeoutException:
         print("Loading took too much time!")
-        print(driver.page_source)
 
     return driver
 
