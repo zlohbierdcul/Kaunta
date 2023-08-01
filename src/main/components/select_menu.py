@@ -47,6 +47,7 @@ class SeasonSelectMenu(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.message.delete()
+        await interaction.response.defer()
         await handle_season_select(interaction, list(interaction.data.values())[0])
         
 
