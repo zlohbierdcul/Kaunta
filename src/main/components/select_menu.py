@@ -32,7 +32,7 @@ class ShowSelectMenu(discord.ui.Select):
             view.add_item(select_menu)
             view.add_item(abort_button)
             await interaction.message.delete()
-            await interaction.response.send_message(embed=embeded, view=view)
+            await interaction.followup.send(embed=embeded, view=view)
         else:
             print(f"else: seasons: {seasons}")
             await handle_season_select(interaction, [seasons[0][1]])
@@ -76,10 +76,11 @@ async def handle_season_select(select_interaction: discord.Interaction, season_l
         await select_interaction.message.delete()
     except Exception as e:
         print(e)
-    await select_interaction.response.send_message(embed=Embed(title="Add?", description="Do you want to add this to your list?"), view=view)
+    await select_interaction.followup.send(embed=Embed(title="Add?", description="Do you want to add this to your list?"), view=view)
     
     
 async def handle_show_add(interaction: discord.Interaction, watch_links):
+    await interaction.response.defer()
     prequel = None
     added_shows = ""
     for show_link in watch_links:
@@ -90,10 +91,10 @@ async def handle_show_add(interaction: discord.Interaction, watch_links):
             prequel = show_name
             added_shows += show_name + ", "
         else:
-            await interaction.response.send_message(embed=Embed(title="Show exists already!", description=f"{show_name} already exists for this user. \n Skipping this season/show!", color=discord.Color.from_rgb(222,0,0)), delete_after=6)
+            await interaction.followup.send(embed=Embed(title="Show exists already!", description=f"{show_name} already exists for this user. \n Skipping this season/show!", color=discord.Color.from_rgb(222,0,0)), delete_after=6)
     added_shows = added_shows[:-1]
     if len(added_shows) > 0:
-        await interaction.channel.send(embed=Embed(title="Show added!", description=f"{added_shows} added!"), delete_after=5)
+        await interaction.followup.send(embed=Embed(title="Show added!", description=f"{added_shows} added!"), delete_after=5)
         await interaction.message.delete()
     
     
