@@ -140,6 +140,7 @@ def show_exists_for_user(show: str, user: int) -> bool:
     cur.execute(query, (user, show))
     results = cur.fetchall()
     close(con, cur)
+    print(f"show_exists results: {results}")
     return True if len(results) > 0 else False
     
     
