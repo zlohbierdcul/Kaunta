@@ -50,6 +50,7 @@ class ShowSelect(Select):
 
 def create_show_select_view(user: int, page: int) -> View:
     shows = get_shows_from_user(user)
+    print(f"shows: {shows} , {len(shows)}")
     global options
     global show_select
     global current_page
@@ -64,6 +65,8 @@ def create_show_select_view(user: int, page: int) -> View:
     abort_button = AbortButton()
     view = View()
     view.add_item(show_select)
+    if len(options == 0):
+        return None
     if len(options) > 25:
         view.add_item(back_button)
         view.add_item(forward_button)
