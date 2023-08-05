@@ -1,15 +1,10 @@
 ### Imports ###
 # other
 import discord
-
 from discord import app_commands
-from pprint import pprint as pp
-
-
 
 # custom components
 from components.persistent_bot_component import PersistentBot
-from components.counter_component import create_counter_by_show_id
 
 # controller handler
 from controller.search_input_controller import handle_search
@@ -22,14 +17,13 @@ import config.bot_config as cfg
 
 # util
 from utils.startup_calls import reload_counter, load_commands
-from utils.logger import get_logger
+from utils.logger import get_logger, get_setup
 
 ### Logging
-logger = get_logger("main")
+log = get_logger("main")
 
 
 ### Bot Startup ###
-logger.info("Bot setup")
 bot = PersistentBot()
 
 
@@ -49,7 +43,7 @@ async def on_ready():
     await reload_counter(bot)
     await load_commands(bot)
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(cfg.STATUS))
-    logger.info(f"Bot ready in CHANNEL: {cfg.CHANNEL_ID}")
+    log.info(f"Bot ready in CHANNEL: {cfg.CHANNEL_ID}")
     
 
 ### Slash-Commands ###
@@ -63,4 +57,5 @@ async def search(interaction: discord.Interaction, show: str):
     await handle_search(bot, interaction, show)
 
 ### Start Bot!! ###
-bot.run(cfg.TOKEN)
+handler, formatter, level = get_setup()
+bot.run(cfg.TOKEN, log_handler=None)
