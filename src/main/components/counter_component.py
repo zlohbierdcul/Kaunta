@@ -19,8 +19,9 @@ class CounterButton(Button):
             self.allowed = False
 
 class IncrementEpButton(CounterButton):
-    def __init__(self, user_id: int, show_id: int, disabled: bool = False):
-        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="🔼", row=1, disabled=disabled)
+    def __init__(self, user_id: int, show_id: int, custom_id: str, disabled: bool = False):
+        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="🔼", row=1, disabled=disabled, custom_id=custom_id)
+        self.custom_id = str(show_id)
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
@@ -33,8 +34,8 @@ class IncrementEpButton(CounterButton):
         
         
 class DecrementEpButton(CounterButton):
-    def __init__(self, user_id: int, show_id: int, disabled: bool = False):
-        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="🔽", row=1, disabled=disabled)
+    def __init__(self, user_id: int, show_id: int, custom_id: str, disabled: bool = False):
+        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="🔽", row=1, disabled=disabled, custom_id=custom_id)
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
@@ -46,10 +47,9 @@ class DecrementEpButton(CounterButton):
             await interaction.response.defer()
         
         
-        
 class IncrementSeasonButton(CounterButton):
-    def __init__(self, user_id: int, show_id: int, disabled: bool = False, sequel_id: int = None):
-        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="⏫", row=1, disabled=disabled)
+    def __init__(self, user_id: int, show_id: int, custom_id: str, disabled: bool = False, sequel_id: int = None):
+        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="⏫", row=1, disabled=disabled, custom_id=custom_id)
         self.sequel_id = sequel_id
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
@@ -61,8 +61,8 @@ class IncrementSeasonButton(CounterButton):
         
         
 class DecrementSeasonButton(CounterButton):
-    def __init__(self, user_id: int, show_id: int, disabled: bool = False, prequel_id: int = None):
-        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="⏬", row=1, disabled=disabled)
+    def __init__(self, user_id: int, show_id: int, custom_id: str, disabled: bool = False, prequel_id: int = None):
+        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="⏬", row=1, disabled=disabled, custom_id=custom_id)
         self.prequel_id = prequel_id
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
@@ -82,8 +82,8 @@ class LinkButton(Button):
         
         
 class CounterDeleteButton(CounterButton):
-    def __init__(self, user_id: int):
-        super().__init__(user_id=user_id, style=discord.ButtonStyle.danger, emoji="✖️", row=2)
+    def __init__(self, user_id: int, custom_id: str,):
+        super().__init__(user_id=user_id, style=discord.ButtonStyle.danger, emoji="✖️", row=2, custom_id=custom_id)
         
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
@@ -91,15 +91,67 @@ class CounterDeleteButton(CounterButton):
             await interaction.message.delete()
             await interaction.response.defer()
         
+
+class PersistentCounterViewWrapper(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+class PersistentCounterView(PersistentCounterViewWrapper):
+    def __init__(self, *, ep_inc_disabled = None, ep_dec_disabled = None, se_inc_disabled = None, se_dec_disabled = None, link_url: str = None, user_id: int = None, show_id: int = None, sequel_id: int = None, prequel_id: int = None):
+        super().__init__()
+        args = [ep_inc_disabled, ep_dec_disabled, se_inc_disabled, se_dec_disabled, link_url, user_id, show_id, sequel_id, prequel_id]
+        nones = [True for x in args if x == None]
+        if all(nones):
+            return
+        ep_inc_btn = IncrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_inc_btn", disabled=ep_inc_disabled)
+        ep_dec_btn = DecrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_dec_btn", disabled=ep_dec_disabled)
+        se_inc_btn = IncrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_inc_btn", disabled=se_inc_disabled, sequel_id=sequel_id)
+        se_dec_btn = DecrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_dec_btn", disabled=se_dec_disabled, prequel_id=prequel_id)
+        # link_btn = LinkButton(url=link_url)
+        counter_del_btn = CounterDeleteButton(user_id=user_id, custom_id="counter_del_btn")
+    
+    
+        self.add_item(ep_inc_btn)
+        self.add_item(ep_dec_btn)
+        self.add_item(se_inc_btn)
+        self.add_item(se_dec_btn)
+        # self.add_item(link_btn)
+        self.add_item(counter_del_btn)
+        self.user_id = user_id
+        self.show_id = show_id
+        self.ep_inc_disabled = ep_inc_disabled
         
+        
+    async def ep_inc_btn(self, interaction: discord.Interaction, button):
+        if (self.is_allowed(interaction.user.id)):
+            print("allowed")
+            await interaction.response.defer()
+        
+        
+    def is_allowed(self, user_id: int) -> bool:
+        allowed = True
+        if (self.user_id != user_id):
+            allowed = False
+        return allowed
+
+       
 def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_dec_disab: bool, link_url: str, user_id: int, show_id: int, sequel_id: int, prequel_id: int):
-    view = View(timeout=None)
-    view.add_item(IncrementEpButton(user_id, show_id, ep_inc_disab))
-    view.add_item(DecrementEpButton(user_id, show_id, ep_dec_disab))
-    view.add_item(IncrementSeasonButton(user_id, show_id, se_inc_disab, sequel_id))
-    view.add_item(DecrementSeasonButton(user_id, show_id, se_dec_disab, prequel_id))
-    view.add_item(LinkButton(link_url))
-    view.add_item(CounterDeleteButton(user_id))
+    view = PersistentCounterViewWrapper() 
+    #PersistentCounterView(ep_inc_disabled=ep_inc_disab, ep_dec_disabled=ep_dec_disab, se_inc_disabled=se_inc_disab, se_dec_disabled=se_dec_disab, link_url=link_url, user_id=user_id, show_id=show_id, sequel_id=sequel_id, prequel_id=prequel_id)
+    ep_inc_btn = IncrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_inc_btn", disabled=ep_inc_disab)
+    ep_dec_btn = DecrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_dec_btn", disabled=ep_dec_disab)
+    se_inc_btn = IncrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_inc_btn", disabled=se_inc_disab, sequel_id=sequel_id)
+    se_dec_btn = DecrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_dec_btn", disabled=se_dec_disab, prequel_id=prequel_id)
+    link_btn = LinkButton(url=link_url)
+    counter_del_btn = CounterDeleteButton(user_id=user_id, custom_id="counter_del_btn")
+
+
+    view.add_item(ep_inc_btn)
+    view.add_item(ep_dec_btn)
+    view.add_item(se_inc_btn)
+    view.add_item(se_dec_btn)
+    view.add_item(link_btn)
+    view.add_item(counter_del_btn)
     return view
 
 

@@ -1,4 +1,10 @@
+# other
 from typing import List
+
+# provider
+from engine.providers import Provider
+
+# selenium stuff
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
@@ -6,35 +12,32 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.firefox import GeckoDriverManager
-from bs4 import BeautifulSoup
-from enum import Enum
-import json
 
-# Options
+# logger
+from utils.logger import get_logger
+logger = get_logger("engine.search_engine")
+
+
+# Webdriver Options
 options = FirefoxOptions()
 options.add_argument("-headless")
 
-# Driver
+# Webdriver
 driver = Firefox(options=options)
 
 
-print("Ready!")
-
-class Provider(Enum):
-    ANIWATCH = "https://aniwatch.to/search?keyword="
-    NINEANIME =   "https://9animetv.to/search?keyword="
+logger.info("Webdriver is ready!")
 
 
 def get_driver(url: str, wait_element: str = "film_list"):
-
-    print(f"url: {url} - wait-elem: {wait_element}")
+    logger.debug(f"url: {url} - wait-elem: {wait_element}")
     driver.get(url)
     delay = 10 # seconds
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CLASS_NAME, wait_element)))
-        print("Page is ready!")
+        logger.debug("Page is ready!")
     except TimeoutException:
-        print("Loading took too much time!")
+        logger.warning("Loading took too much time!")
 
     return driver
 

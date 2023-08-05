@@ -37,17 +37,18 @@ class ForwardButton(Button):
         
 
 class ShowSelect(Select):
-    def __init__(self, placeholder: str  = None, options: List[SelectOption] = ...) -> None:
+    def __init__(self, bot, placeholder: str  = None, options: List[SelectOption] = ...) -> None:
         super().__init__(placeholder=placeholder, options=options)
+        self.bot = bot
 
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         show_id = int(list(interaction.data.values())[0][0])
         user_id = interaction.user.id
-        await handle_show_select(interaction, user_id, show_id)
+        await handle_show_select(self.bot ,interaction, user_id, show_id)
         await interaction.message.delete()
         
 
-def create_show_select_view(user: int, page: int) -> View:
+def create_show_select_view(bot, user: int, page: int) -> View:
     shows = get_shows_from_user(user)
     global options
     global show_select
@@ -56,7 +57,7 @@ def create_show_select_view(user: int, page: int) -> View:
     options = [SelectOption(label=x[0], value=x[1], description=f"{x[2]} | {x[3]}") for x in shows]
     x = 25*(page-1)
     y = 25*page
-    show_select = ShowSelect("Your shows", options[x:y])
+    show_select = ShowSelect(bot, "Your shows", options[x:y])
     back_button = BackButton()
     forward_button = ForwardButton()
     abort_button = AbortButton()

@@ -1,12 +1,12 @@
 import discord
 import glob
 import pathlib
-from components.counter_component import create_counter_view, create_counter_embed
+from typing import Sequence
+from components.counter_component import create_counter_by_show_id
 
 
-async def handle_show_select(interaction: discord.Interaction, user_id: int, show_id: int):
-    view, title, episode_name, current_ep, total_ep, color = create_counter_view(show_id)
-    embed = create_counter_embed(title, episode_name, current_ep, total_ep, color)
+async def handle_show_select(bot, interaction: discord.Interaction, user_id: int, show_id: int):
+    embed, view = create_counter_by_show_id(show_id=show_id)
     await interaction.response.send_message(embed=embed, view=view)
 
 
@@ -23,3 +23,4 @@ def show_exists(des_show):
 
 
 
+    
