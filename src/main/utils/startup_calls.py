@@ -1,7 +1,5 @@
 # other 
 import discord
-import sys
-import loguru
 
 # custom components
 from components.counter_component import get_counter_by_show_id
