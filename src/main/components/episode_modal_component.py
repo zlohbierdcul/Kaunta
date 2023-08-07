@@ -12,7 +12,7 @@ from discord.utils import MISSING
 from database.database_connection import get_show_by_show_id, set_episode
 
 class SetEpisodeModal(Modal):
-    def __init__(self, *,counter_interaction: discord.Interaction, show_id: int,  min: int, max: int, title: str = "Please enter the episode.", timeout: float | None = None, custom_id: str = "set_ep_btn") -> None:
+    def __init__(self, *,counter_interaction: discord.Interaction, show_id: int,  min: int, max: int, title: str = "Please enter the episode.", timeout: float = None, custom_id: str = "set_ep_btn") -> None:
         super().__init__(title=title, timeout=timeout, custom_id=custom_id)
         text_input = TextInput(label="Set Episode of .. Show ..", placeholder="Enter episode number", custom_id="episode_input", max_length=len(str(max)))
         self.add_item(text_input)
