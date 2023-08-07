@@ -2,11 +2,11 @@ import discord
 import glob
 import pathlib
 from typing import Sequence
-from components.counter_component import create_counter_by_show_id
+from components.counter_component import get_counter_by_show_id
 
 
 async def handle_show_select(bot, interaction: discord.Interaction, user_id: int, show_id: int):
-    embed, view = create_counter_by_show_id(show_id=show_id)
+    embed, view = get_counter_by_show_id(show_id=show_id)
     await interaction.response.send_message(embed=embed, view=view)
 
 

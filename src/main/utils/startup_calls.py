@@ -1,9 +1,10 @@
 # other 
 import discord
 import sys
+import loguru
 
 # custom components
-from components.counter_component import create_counter_by_show_id
+from components.counter_component import get_counter_by_show_id
 
 # config
 import config.bot_config as cfg
@@ -11,7 +12,6 @@ import config.bot_config as cfg
 # logger
 from utils.logger import get_logger
 logger = get_logger("utils.startup_calls")
-
 
 # reloads all counter messages
 async def reload_counter(bot):
@@ -21,10 +21,13 @@ async def reload_counter(bot):
     messages.reverse()
     for message in messages:
         view = discord.ui.View.from_message(message)
-        show_id = view.children[0].custom_id if view.children[0].custom_id.isnumeric() else None
-        if show_id != None:
-            embed, view = create_counter_by_show_id(show_id=show_id)
-            await channel.send(embed=embed, view=view)
+        try:
+            show_id = view.children[0].custom_id if view.children[0].custom_id.isnumeric() else None
+            if show_id != None:
+                embed, view = get_counter_by_show_id(show_id=show_id)
+                await channel.send(embed=embed, view=view)
+        except IndexError as ie:
+            logger.info("Message has no view")
         await message.delete()
 
 

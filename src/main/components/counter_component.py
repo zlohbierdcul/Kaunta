@@ -4,6 +4,7 @@ from discord.enums import ButtonStyle
 from discord.interactions import Interaction
 from discord.partial_emoji import PartialEmoji
 from discord.ui import Button, View
+from components.episode_modal_component import SetEpisodeModal
 from database.database_connection import get_show_by_show_id, get_linked_show, get_episode_data, increment_current_ep, decrement_current_ep, increment_current_se, decrement_current_se
 import discord
 
@@ -27,8 +28,8 @@ class IncrementEpButton(CounterButton):
         await super().callback(interaction)
         if (self.allowed):
             increment_current_ep(self.show_id)
-            view, title, episode_name, current_ep, total_ep, color = create_counter_view(self.show_id)
-            embed = create_counter_embed(title, episode_name, current_ep, total_ep, color)
+            view, title, episode_name, current_ep, total_ep, color = get_counter_view(self.show_id)
+            embed = get_counter_embed(title, episode_name, current_ep, total_ep, color)
             await interaction.message.edit(embed=embed, view=view)
             await interaction.response.defer()
         
@@ -41,8 +42,8 @@ class DecrementEpButton(CounterButton):
         await super().callback(interaction)
         if (self.allowed):
             decrement_current_ep(self.show_id)
-            view, title, episode_name, current_ep, total_ep, color = create_counter_view(self.show_id)
-            embed = create_counter_embed(title, episode_name, current_ep, total_ep, color)
+            view, title, episode_name, current_ep, total_ep, color = get_counter_view(self.show_id)
+            embed = get_counter_embed(title, episode_name, current_ep, total_ep, color)
             await interaction.message.edit(embed=embed, view=view)
             await interaction.response.defer()
         
@@ -55,7 +56,7 @@ class IncrementSeasonButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            embed, view = create_counter_by_show_id(self.sequel_id)
+            embed, view = get_counter_by_show_id(self.sequel_id)
             await interaction.message.edit(embed=embed, view=view)
             await interaction.response.defer()
         
@@ -68,9 +69,20 @@ class DecrementSeasonButton(CounterButton):
     async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
         await super().callback(interaction)
         if (self.allowed):
-            embed, view = create_counter_by_show_id(self.prequel_id)
+            embed, view = get_counter_by_show_id(self.prequel_id)
             await interaction.message.edit(embed=embed, view=view)
             await interaction.response.defer()
+
+
+class SetEpisodeButton(CounterButton):
+    def __init__(self, user_id: int, show_id: int, custom_id: str, disabled: bool = False, total_ep: int = 12):
+        super().__init__(user_id=user_id, show_id=show_id, style=discord.ButtonStyle.primary, emoji="⏭️", row=1, disabled=disabled, custom_id=custom_id)
+        self.total_ep = total_ep
+        
+    async def callback(self, interaction: Interaction) -> Coroutine[Any, Any, Any]:
+        await super().callback(interaction)
+        if (self.allowed):
+            await handle_set_episode(interaction, self.total_ep, self.show_id)
 
 
 class LinkButton(Button):
@@ -96,52 +108,21 @@ class PersistentCounterViewWrapper(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-class PersistentCounterView(PersistentCounterViewWrapper):
-    def __init__(self, *, ep_inc_disabled = None, ep_dec_disabled = None, se_inc_disabled = None, se_dec_disabled = None, link_url: str = None, user_id: int = None, show_id: int = None, sequel_id: int = None, prequel_id: int = None):
-        super().__init__()
-        args = [ep_inc_disabled, ep_dec_disabled, se_inc_disabled, se_dec_disabled, link_url, user_id, show_id, sequel_id, prequel_id]
-        nones = [True for x in args if x == None]
-        if all(nones):
-            return
-        ep_inc_btn = IncrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_inc_btn", disabled=ep_inc_disabled)
-        ep_dec_btn = DecrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_dec_btn", disabled=ep_dec_disabled)
-        se_inc_btn = IncrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_inc_btn", disabled=se_inc_disabled, sequel_id=sequel_id)
-        se_dec_btn = DecrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_dec_btn", disabled=se_dec_disabled, prequel_id=prequel_id)
-        # link_btn = LinkButton(url=link_url)
-        counter_del_btn = CounterDeleteButton(user_id=user_id, custom_id="counter_del_btn")
+
     
     
-        self.add_item(ep_inc_btn)
-        self.add_item(ep_dec_btn)
-        self.add_item(se_inc_btn)
-        self.add_item(se_dec_btn)
-        # self.add_item(link_btn)
-        self.add_item(counter_del_btn)
-        self.user_id = user_id
-        self.show_id = show_id
-        self.ep_inc_disabled = ep_inc_disabled
-        
-        
-    async def ep_inc_btn(self, interaction: discord.Interaction, button):
-        if (self.is_allowed(interaction.user.id)):
-            print("allowed")
-            await interaction.response.defer()
-        
-        
-    def is_allowed(self, user_id: int) -> bool:
-        allowed = True
-        if (self.user_id != user_id):
-            allowed = False
-        return allowed
+async def handle_set_episode(interaction:discord.Interaction, total_ep: int, show_id: int):
+    await interaction.response.send_modal(SetEpisodeModal(counter_interaction=interaction, show_id=show_id, min=1,max=total_ep))
 
        
-def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_dec_disab: bool, link_url: str, user_id: int, show_id: int, sequel_id: int, prequel_id: int):
+def create_counter_view(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_dec_disab: bool, link_url: str, user_id: int, show_id: int, sequel_id: int, prequel_id: int, total_ep: int):
     view = PersistentCounterViewWrapper() 
     #PersistentCounterView(ep_inc_disabled=ep_inc_disab, ep_dec_disabled=ep_dec_disab, se_inc_disabled=se_inc_disab, se_dec_disabled=se_dec_disab, link_url=link_url, user_id=user_id, show_id=show_id, sequel_id=sequel_id, prequel_id=prequel_id)
     ep_inc_btn = IncrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_inc_btn", disabled=ep_inc_disab)
     ep_dec_btn = DecrementEpButton(user_id=user_id, show_id=show_id, custom_id="ep_dec_btn", disabled=ep_dec_disab)
     se_inc_btn = IncrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_inc_btn", disabled=se_inc_disab, sequel_id=sequel_id)
     se_dec_btn = DecrementSeasonButton(user_id=user_id, show_id=show_id, custom_id="se_dec_btn", disabled=se_dec_disab, prequel_id=prequel_id)
+    set_ep_btn = SetEpisodeButton(user_id=user_id, show_id=show_id, custom_id="set_ep_btn", total_ep=total_ep)
     link_btn = LinkButton(url=link_url)
     counter_del_btn = CounterDeleteButton(user_id=user_id, custom_id="counter_del_btn")
 
@@ -150,12 +131,13 @@ def CounterView(ep_inc_disab: bool, ep_dec_disab: bool, se_inc_disab: bool, se_d
     view.add_item(ep_dec_btn)
     view.add_item(se_inc_btn)
     view.add_item(se_dec_btn)
+    view.add_item(set_ep_btn)
     view.add_item(link_btn)
     view.add_item(counter_del_btn)
     return view
 
 
-def create_counter_view(show_id: int):
+def get_counter_view(show_id: int):
     show = get_show_by_show_id(show_id)
     sequel = get_linked_show(show_id)
     sequel_id = None if len(sequel) == 0 else sequel[0][0]
@@ -176,15 +158,15 @@ def create_counter_view(show_id: int):
     ep_dec_disab = True if current_ep == 1 else False
     se_inc_disab = True if len(sequel) < 1 else False
     se_dec_disab = True if prequel_id == None else False
-    view = CounterView(ep_inc_disab, ep_dec_disab, se_inc_disab, se_dec_disab, url, user_id, show_id, sequel_id, prequel_id)
+    view = create_counter_view(ep_inc_disab, ep_dec_disab, se_inc_disab, se_dec_disab, url, user_id, show_id, sequel_id, prequel_id, total_ep)
     return (view, title, episode_name, current_ep, total_ep, color)
 
 
-def create_counter_embed(title, episode_name, current_ep, total_ep, color):
+def get_counter_embed(title, episode_name, current_ep, total_ep, color):
     embed = discord.Embed(title=title, description=f"**Title**\n||```\n{episode_name}\n```||\n**Episode**\n```\n{current_ep} | {total_ep}\n``` ", color=color)
     return embed
 
-def create_counter_by_show_id(show_id: int):
-    view, title, episode_name, current_ep, total_ep, color = create_counter_view(show_id)
-    embed = create_counter_embed(title, episode_name, current_ep, total_ep, color)
+def get_counter_by_show_id(show_id: int):
+    view, title, episode_name, current_ep, total_ep, color = get_counter_view(show_id)
+    embed = get_counter_embed(title, episode_name, current_ep, total_ep, color)
     return (embed, view)

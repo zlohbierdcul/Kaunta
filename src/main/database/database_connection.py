@@ -170,5 +170,14 @@ def increment_current_se(show_id: int):
     
     close(con, cur)
     
+def set_episode(show_id: int, episode: int):
+    update_query = f"UPDATE public.\"Series\" SET current_episode = %s WHERE series_id = %s"
+    con = start_connection()
+    cur = con.cursor()
+    cur.execute(update_query, (episode, show_id))
+    con.commit()
+    
+    close(con, cur)
+    
 def decrement_current_se(show_id: int):
     pass
