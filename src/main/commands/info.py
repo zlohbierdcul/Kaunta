@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
-from database.database_connection import get_all_data_from
+# from database.database_connection import get_watching_series_from_user
 from config.bot_config import CHANNEL_ID
 
 
@@ -24,15 +24,15 @@ class Info(commands.Cog):
 
     @commands.command()
     async def avatar(self, ctx: Context):
-        result = await get_all_data_from("Users")
-        output = ""
-        for row in result:
-            output += f"ID: {row[0]} Name: {row[1]}\n"
-        await ctx.send(output, delete_after=3)
+        pass
+        # result = await get_watching_series_from_user("")
+        # output = ""
+        # for row in result:
+        #     output += f"ID: {row[0]} Name: {row[1]}\n"
+        # await ctx.send(output, delete_after=3)
 
     @commands.command()
     async def help(self, ctx):
-        print("help")
         info_board = discord.Embed(
             title="BotName",
             colour=discord.Colour.blue()
